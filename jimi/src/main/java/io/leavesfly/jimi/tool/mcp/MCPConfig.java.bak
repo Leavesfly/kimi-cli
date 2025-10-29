@@ -1,0 +1,107 @@
+package io.leavesfly.jimi.tool.mcp;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.List;
+import java.util.Map;
+
+/**
+ * MCP 配置
+ * 
+ * 定义如何连接到 MCP 服务器的配置。
+ * 支持两种连接方式：
+ * 1. STDIO - 通过进程标准输入输出（如 npx 命令）
+ * 2. HTTP - 通过 HTTP/SSE 远程连接
+ * 
+ * 配置示例：
+ * ```json
+ * {
+ *   "mcpServers": {
+ *     "chrome-devtools": {
+ *       "command": "npx",
+ *       "args": ["-y", "chrome-devtools-mcp@latest"]
+ *     },
+ *     "context7": {
+ *       "url": "https://mcp.context7.com/mcp",
+ *       "headers": {
+ *         "CONTEXT7_API_KEY": "your_key"
+ *       }
+ *     }
+ *   }
+ * }
+ * ```
+ * 
+ * @author 山泽
+ */
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class MCPConfig {
+    
+    /**
+     * MCP 服务器配置映射
+     * key: 服务器名称
+     * value: 服务器配置
+     */
+    @JsonProperty("mcpServers")
+    private Map<String, ServerConfig> mcpServers;
+    
+    /**
+     * 单个 MCP 服务器配置
+     */
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ServerConfig {
+        
+        /**
+         * STDIO 模式：执行命令
+         */
+        @JsonProperty("command")
+        private String command;
+        
+        /**
+         * STDIO 模式：命令参数
+         */
+        @JsonProperty("args")
+        private List<String> args;
+        
+        /**
+         * STDIO 模式：环境变量
+         */
+        @JsonProperty("env")
+        private Map<String, String> env;
+        
+        /**
+         * HTTP 模式：服务器 URL
+         */
+        @JsonProperty("url")
+        private String url;
+        
+        /**
+         * HTTP 模式：请求头（可包含认证信息）
+         */
+        @JsonProperty("headers")
+        private Map<String, String> headers;
+        
+        /**
+         * 判断是否为 STDIO 模式
+         */
+        public boolean isStdio() {
+            return command != null && !command.isEmpty();
+        }
+        
+        /**
+         * 判断是否为 HTTP 模式
+         */
+        public boolean isHttp() {
+            return url != null && !url.isEmpty();
+        }
+    }
+}

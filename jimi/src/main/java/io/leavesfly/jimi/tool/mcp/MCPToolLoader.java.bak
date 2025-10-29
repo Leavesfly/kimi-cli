@@ -1,0 +1,209 @@
+package io.leavesfly.jimi.tool.mcp;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.leavesfly.jimi.tool.ToolRegistry;
+import io.modelcontextprotocol.sdk.McpSchema;
+import io.modelcontextprotocol.sdk.client.McpClient;
+import io.modelcontextprotocol.sdk.client.ServerParameters;
+import io.modelcontextprotocol.sdk.client.StdioClientTransport;
+import lombok.extern.slf4j.Slf4j;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * MCP 工具加载器
+ * 
+ * 从 MCP 配置文件加载外部工具到 Jimi 工具注册表。
+ * 
+ * 加载流程：
+ * 1. 读取 JSON 配置文件
+ * 2. 为每个 MCP 服务器创建客户端
+ * 3. 初始化连接并列出工具
+ * 4. 将 MCP 工具包装为 Jimi 工具
+ * 5. 注册到工具注册表
+ * 
+ * 支持的传输方式：
+ * - STDIO（子进程通信）
+ * - HTTP/SSE（远程服务器）
+ * 
+ * 使用示例：
+ * ```java
+ * MCPToolLoader loader = new MCPToolLoader(objectMapper);
+ * List<MCPTool> tools = loader.loadFromFile(
+ *     Paths.get("/path/to/mcp-config.json"),
+ *     toolRegistry
+ * );
+ * ```
+ * 
+ * @author 山泽
+ */
+@Slf4j
+public class MCPToolLoader {
+    
+    private final ObjectMapper objectMapper;
+    private final List<McpClient> activeClients = new ArrayList<>();
+    
+    public MCPToolLoader(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
+    
+    /**
+     * 从文件加载 MCP 工具
+     * 
+     * @param configPath MCP 配置文件路径
+     * @param toolRegistry 工具注册表
+     * @return 加载的工具列表
+     */
+    public List<MCPTool> loadFromFile(Path configPath, ToolRegistry toolRegistry) 
+            throws IOException {
+        log.info("Loading MCP tools from config file: {}", configPath);
+        
+        // 读取配置文件
+        String json = Files.readString(configPath);
+        MCPConfig config = objectMapper.readValue(json, MCPConfig.class);
+        
+        return loadFromConfig(config, toolRegistry);
+    }
+    
+    /**
+     * 从 JSON 字符串加载 MCP 工具
+     */
+    public List<MCPTool> loadFromJson(String json, ToolRegistry toolRegistry) 
+            throws IOException {
+        log.info("Loading MCP tools from JSON config");
+        
+        MCPConfig config = objectMapper.readValue(json, MCPConfig.class);
+        return loadFromConfig(config, toolRegistry);
+    }
+    
+    /**
+     * 从配置对象加载 MCP 工具
+     */
+    public List<MCPTool> loadFromConfig(MCPConfig config, ToolRegistry toolRegistry) {
+        List<MCPTool> loadedTools = new ArrayList<>();
+        
+        if (config.getMcpServers() == null || config.getMcpServers().isEmpty()) {
+            log.warn("No MCP servers configured");
+            return loadedTools;
+        }
+        
+        // 遍历每个 MCP 服务器配置
+        for (Map.Entry<String, MCPConfig.ServerConfig> entry : 
+                config.getMcpServers().entrySet()) {
+            
+            String serverName = entry.getKey();
+            MCPConfig.ServerConfig serverConfig = entry.getValue();
+            
+            try {
+                log.info("Loading MCP server: {}", serverName);
+                
+                // 创建 MCP 客户端
+                McpClient client = createClient(serverName, serverConfig);
+                activeClients.add(client);
+                
+                // 初始化连接
+                client.initialize();
+                log.info("MCP server {} initialized", serverName);
+                
+                // 列出所有工具
+                McpSchema.ListToolsResult toolsResult = client.listTools();
+                List<McpSchema.Tool> tools = toolsResult.tools();
+                log.info("Found {} tools from server {}", tools.size(), serverName);
+                
+                // 为每个工具创建包装器并注册
+                for (McpSchema.Tool tool : tools) {
+                    MCPTool mcpTool = new MCPTool(tool, client);
+                    toolRegistry.register(mcpTool);
+                    loadedTools.add(mcpTool);
+                    
+                    log.debug("Registered MCP tool: {} from server {}", 
+                            tool.name(), serverName);
+                }
+                
+            } catch (Exception e) {
+                log.error("Failed to load MCP server: {}", serverName, e);
+                // 继续加载其他服务器
+            }
+        }
+        
+        log.info("Loaded {} MCP tools from {} servers", 
+                loadedTools.size(), config.getMcpServers().size());
+        
+        return loadedTools;
+    }
+    
+    /**
+     * 创建 MCP 客户端
+     */
+    private McpClient createClient(String serverName, MCPConfig.ServerConfig config) {
+        if (config.isStdio()) {
+            return createStdioClient(serverName, config);
+        } else if (config.isHttp()) {
+            return createHttpClient(serverName, config);
+        } else {
+            throw new IllegalArgumentException(
+                    "Invalid MCP server config: must specify either 'command' or 'url'");
+        }
+    }
+    
+    /**
+     * 创建 STDIO 客户端
+     */
+    private McpClient createStdioClient(String serverName, MCPConfig.ServerConfig config) {
+        log.debug("Creating STDIO client for server: {}", serverName);
+        
+        // 构建服务器参数
+        ServerParameters.Builder paramsBuilder = ServerParameters.builder(config.getCommand());
+        
+        if (config.getArgs() != null && !config.getArgs().isEmpty()) {
+            paramsBuilder.args(config.getArgs().toArray(new String[0]));
+        }
+        
+        if (config.getEnv() != null && !config.getEnv().isEmpty()) {
+            paramsBuilder.env(config.getEnv());
+        }
+        
+        ServerParameters params = paramsBuilder.build();
+        
+        // 创建 STDIO 传输
+        StdioClientTransport transport = new StdioClientTransport(params);
+        
+        // 创建并返回客户端
+        return new McpClient(transport);
+    }
+    
+    /**
+     * 创建 HTTP 客户端
+     */
+    private McpClient createHttpClient(String serverName, MCPConfig.ServerConfig config) {
+        log.debug("Creating HTTP client for server: {}", serverName);
+        
+        // TODO: 实现 HTTP 客户端
+        // 需要根据 MCP SDK 的 HTTP 传输实现
+        throw new UnsupportedOperationException(
+                "HTTP MCP transport is not yet implemented. " +
+                "Please use STDIO transport for now.");
+    }
+    
+    /**
+     * 关闭所有活动的 MCP 客户端
+     */
+    public void closeAll() {
+        log.info("Closing {} MCP clients", activeClients.size());
+        
+        for (McpClient client : activeClients) {
+            try {
+                client.close();
+            } catch (Exception e) {
+                log.warn("Failed to close MCP client", e);
+            }
+        }
+        
+        activeClients.clear();
+    }
+}

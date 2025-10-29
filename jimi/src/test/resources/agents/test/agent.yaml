@@ -1,0 +1,12 @@
+version: 1
+agent:
+  name: "测试Agent"
+  system_prompt_path: ./system.md
+  system_prompt_args:
+    ROLE_ADDITIONAL: "你是一个专业的Java开发助手"
+  tools:
+    - "io.leavesfly.jimi.tools.bash:Bash"
+    - "io.leavesfly.jimi.tools.file:ReadFile"
+    - "io.leavesfly.jimi.tools.file:WriteFile"
+    - "io.leavesfly.jimi.tools.think:Think"
+  exclude_tools: []

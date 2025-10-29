@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: jimi
+  
+  main:
+    banner-mode: off
+    log-startup-info: false
+    web-application-type: none
+
+logging:
+  level:
+    root: INFO
+    io.leavesfly.jimi: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+
+# Jackson 配置
+  jackson:
+    serialization:
+      indent_output: true
+      write_dates_as_timestamps: false
+    deserialization:
+      fail_on_unknown_properties: false
