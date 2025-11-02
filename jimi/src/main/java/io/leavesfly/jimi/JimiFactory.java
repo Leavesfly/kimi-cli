@@ -11,6 +11,7 @@ import io.leavesfly.jimi.exception.ConfigException;
 import io.leavesfly.jimi.llm.ChatProvider;
 import io.leavesfly.jimi.llm.LLM;
 import io.leavesfly.jimi.llm.provider.KimiChatProvider;
+import io.leavesfly.jimi.llm.provider.OpenAICompatibleChatProvider;
 import io.leavesfly.jimi.session.Session;
 import io.leavesfly.jimi.soul.JimiSoul;
 import io.leavesfly.jimi.soul.agent.Agent;
@@ -166,6 +167,27 @@ public class JimiFactory {
             case KIMI:
                 chatProvider = new KimiChatProvider(model, effectiveProviderConfig, objectMapper);
                 break;
+                
+            case DEEPSEEK:
+                chatProvider = new OpenAICompatibleChatProvider(
+                    model, effectiveProviderConfig, objectMapper, "DeepSeek");
+                break;
+                
+            case QWEN:
+                chatProvider = new OpenAICompatibleChatProvider(
+                    model, effectiveProviderConfig, objectMapper, "Qwen");
+                break;
+                
+            case OLLAMA:
+                chatProvider = new OpenAICompatibleChatProvider(
+                    model, effectiveProviderConfig, objectMapper, "Ollama");
+                break;
+                
+            case OPENAI:
+                chatProvider = new OpenAICompatibleChatProvider(
+                    model, effectiveProviderConfig, objectMapper, "OpenAI");
+                break;
+                
             default:
                 throw new ConfigException("Unsupported provider type: " + providerConfig.getType());
         }

@@ -61,6 +61,23 @@ public class JimiSoul implements Soul {
         this.compaction = new SimpleCompaction();
     }
     
+    // Getter methods for Shell UI and other components
+    public Agent getAgent() {
+        return agent;
+    }
+    
+    public Runtime getRuntime() {
+        return runtime;
+    }
+    
+    public Context getContext() {
+        return context;
+    }
+    
+    public ToolRegistry getToolRegistry() {
+        return toolRegistry;
+    }
+    
     @Override
     public String getName() {
         return agent.getName();

@@ -50,6 +50,18 @@ public class LLMProviderConfig {
         @JsonProperty("kimi")
         KIMI,
         
+        @JsonProperty("deepseek")
+        DEEPSEEK,
+        
+        @JsonProperty("qwen")
+        QWEN,
+        
+        @JsonProperty("ollama")
+        OLLAMA,
+        
+        @JsonProperty("openai")
+        OPENAI,
+        
         @JsonProperty("openai_legacy")
         OPENAI_LEGACY,
         

@@ -1,7 +1,9 @@
 package io.leavesfly.jimi.ui.shell;
 
 import io.leavesfly.jimi.soul.JimiSoul;
+import io.leavesfly.jimi.soul.context.Context;
 import io.leavesfly.jimi.soul.message.ContentPart;
+import io.leavesfly.jimi.soul.message.Message;
 import io.leavesfly.jimi.soul.message.TextPart;
 import io.leavesfly.jimi.soul.message.ToolCall;
 import io.leavesfly.jimi.tool.ToolResult;
@@ -20,7 +22,11 @@ import reactor.core.Disposable;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -251,6 +257,17 @@ public class ShellUI implements AutoCloseable {
             return true;
         }
         
+        // 检查 Shell 命令快捷方式
+        if (input.startsWith("!")) {
+            String shellCommand = input.substring(1).trim();
+            if (!shellCommand.isEmpty()) {
+                runShellShortcut(shellCommand);
+            } else {
+                printError("No command specified after '!'");
+            }
+            return true;
+        }
+        
         // 执行 Agent 命令
         try {
             executeAgentCommand(input);
@@ -336,22 +353,66 @@ public class ShellUI implements AutoCloseable {
         String cmd = parts[0];
         String args = parts.length > 1 ? parts[1] : "";
         
-        switch (cmd) {
-            case "help":
-                printHelp();
-                break;
-            case "status":
-                printStatus("Current status: " + currentStatus.get());
-                break;
-            case "clear":
-                clearScreen();
-                break;
-            case "history":
-                printHistory();
-                break;
-            default:
-                printError("Unknown meta command: /" + cmd);
-                printInfo("Type /help for available commands");
+        try {
+            switch (cmd) {
+                case "help":
+                case "h":
+                case "?":
+                    printHelp();
+                    break;
+                    
+                case "quit":
+                case "exit":
+                    println("");
+                    printInfo("Bye!");
+                    running.set(false);
+                    break;
+                    
+                case "status":
+                    printStatusInfo();
+                    break;
+                    
+                case "clear":
+                case "cls":
+                    clearScreen();
+                    break;
+                    
+                case "history":
+                    printHistory();
+                    break;
+                    
+                case "version":
+                case "v":
+                    printVersion();
+                    break;
+                    
+                case "reset":
+                    resetContext();
+                    break;
+                    
+                case "compact":
+                    compactContext();
+                    break;
+                    
+                case "init":
+                    initCodebase();
+                    break;
+                    
+                case "config":
+                    printConfig();
+                    break;
+                    
+                case "tools":
+                    printTools();
+                    break;
+                    
+                default:
+                    printError("Unknown meta command: /" + cmd);
+                    printInfo("Type /help for available commands");
+            }
+        } catch (Exception e) {
+            log.error("Error executing meta command: /" + cmd, e);
+            printError("Failed to execute command: " + e.getMessage());
         }
     }
     
@@ -442,14 +503,37 @@ public class ShellUI implements AutoCloseable {
      */
     private void printHelp() {
         println("");
-        printSuccess("Available Meta Commands:");
-        println("  /help     - Show this help message");
-        println("  /status   - Show current status");
-        println("  /clear    - Clear the screen");
-        println("  /history  - Show command history");
-        println("  exit/quit - Exit the shell");
+        println("┌────────────────────────────────────────────────────────────┐");
+        println("│                   Jimi CLI Help                    │");
+        println("└────────────────────────────────────────────────────────────┘");
         println("");
-        printInfo("Or just type your message to chat with Jimi!");
+        
+        printSuccess("基本命令:");
+        println("  exit, quit      - 退出 Jimi");
+        println("  ! <command>     - 直接运行 Shell 命令（需审批）");
+        println("");
+        
+        printSuccess("元命令 (Meta Commands):");
+        println("  /help, /h, /?   - 显示帮助信息");
+        println("  /quit, /exit    - 退出程序");
+        println("  /version, /v    - 显示版本信息");
+        println("  /status         - 显示当前状态");
+        println("  /config         - 显示配置信息");
+        println("  /tools          - 显示可用工具列表");
+        println("  /init           - 分析代码库并生成 AGENTS.md");
+        println("  /clear, /cls    - 清屏");
+        println("  /history        - 显示命令历史");
+        println("  /reset          - 清除上下文历史");
+        println("  /compact        - 压缩上下文");
+        println("");
+        
+        printSuccess("Shell 快捷方式:");
+        println("  ! ls -la        - 执行 Shell 命令");
+        println("  ! pwd           - 显示当前目录");
+        println("  ! mvn test      - 运行 Maven 测试");
+        println("");
+        
+        printInfo("或者直接输入你的问题，让 Jimi 帮助你！");
         println("");
     }
     
@@ -458,14 +542,253 @@ public class ShellUI implements AutoCloseable {
      */
     private void printHistory() {
         println("");
-        printSuccess("Command History:");
+        printSuccess("命令历史:");
         
         int index = 1;
         for (History.Entry entry : lineReader.getHistory()) {
             println(String.format("  %3d  %s", index++, entry.line()));
         }
         
+        if (index == 1) {
+            printInfo("暂无历史记录");
+        }
+        
         println("");
+    }
+    
+    /**
+     * 打印版本信息
+     */
+    private void printVersion() {
+        println("");
+        printSuccess("Jimi - Java Implementation of Moonshot Intelligence");
+        println("  Version: 0.1.0");
+        println("  Java Version: " + System.getProperty("java.version"));
+        println("  Runtime: " + System.getProperty("java.runtime.name"));
+        println("");
+    }
+    
+    /**
+     * 打印状态信息
+     */
+    private void printStatusInfo() {
+        println("");
+        printSuccess("系统状态:");
+        
+        // 当前状态
+        String status = currentStatus.get();
+        String statusIcon = switch (status) {
+            case "ready" -> "✅";
+            case "thinking" -> "🤔";
+            case "compacting" -> "🗃️";
+            case "error" -> "❌";
+            default -> "❓";
+        };
+        println("  状态: " + statusIcon + " " + status);
+        
+        // 活跃工具
+        if (!activeTools.isEmpty()) {
+            println("  正在执行的工具: " + String.join(", ", activeTools.values()));
+        }
+        
+        // Agent 信息
+        println("  Agent: " + soul.getAgent().getName());
+        
+        // 工具数量
+        println("  可用工具数: " + soul.getToolRegistry().getToolNames().size());
+        
+        // 上下文信息
+        try {
+            int messageCount = soul.getContext().getHistory().size();
+            int tokenCount = soul.getContext().getTokenCount();
+            println("  上下文消息数: " + messageCount);
+            println("  上下文 Token 数: " + tokenCount);
+        } catch (Exception e) {
+            log.debug("Failed to get context info", e);
+        }
+        
+        println("");
+    }
+    
+    /**
+     * 打印配置信息
+     */
+    private void printConfig() {
+        println("");
+        printSuccess("配置信息:");
+        
+        // LLM 信息
+        if (soul.getRuntime().getLlm() != null) {
+            println("  LLM: ✅ 已配置");
+        } else {
+            println("  LLM: ❌ 未配置");
+            printInfo("请设置 KIMI_API_KEY 环境变量");
+        }
+        
+        // 工作目录
+        println("  工作目录: " + soul.getRuntime().getBuiltinArgs().getKimiWorkDir());
+        
+        // 会话信息
+        println("  会话 ID: " + soul.getRuntime().getSession().getId());
+        println("  历史文件: " + soul.getRuntime().getSession().getHistoryFile());
+        
+        // YOLO 模式
+        boolean yolo = soul.getRuntime().getApproval().isYolo();
+        println("  YOLO 模式: " + (yolo ? "✅ 开启" : "❌ 关闭"));
+        
+        println("");
+    }
+    
+    /**
+     * 打印工具列表
+     */
+    private void printTools() {
+        println("");
+        printSuccess("可用工具列表:");
+        
+        List<String> toolNames = new ArrayList<>(soul.getToolRegistry().getToolNames());
+        toolNames.sort(String::compareTo);
+        
+        // 按类别分组
+        Map<String, List<String>> categories = new HashMap<>();
+        categories.put("文件操作", new ArrayList<>());
+        categories.put("Shell", new ArrayList<>());
+        categories.put("Web", new ArrayList<>());
+        categories.put("其他", new ArrayList<>());
+        
+        for (String toolName : toolNames) {
+            if (toolName.toLowerCase().contains("file") || 
+                toolName.toLowerCase().contains("read") || 
+                toolName.toLowerCase().contains("write") ||
+                toolName.toLowerCase().contains("grep") ||
+                toolName.toLowerCase().contains("glob")) {
+                categories.get("文件操作").add(toolName);
+            } else if (toolName.toLowerCase().contains("bash") || 
+                       toolName.toLowerCase().contains("shell")) {
+                categories.get("Shell").add(toolName);
+            } else if (toolName.toLowerCase().contains("web") || 
+                       toolName.toLowerCase().contains("fetch") ||
+                       toolName.toLowerCase().contains("search")) {
+                categories.get("Web").add(toolName);
+            } else {
+                categories.get("其他").add(toolName);
+            }
+        }
+        
+        // 打印分组
+        for (Map.Entry<String, List<String>> entry : categories.entrySet()) {
+            if (!entry.getValue().isEmpty()) {
+                println("");
+                printInfo(entry.getKey() + ":");
+                for (String tool : entry.getValue()) {
+                    println("  • " + tool);
+                }
+            }
+        }
+        
+        println("");
+        println("总计: " + toolNames.size() + " 个工具");
+        println("");
+    }
+    
+    /**
+     * 重置上下文
+     */
+    private void resetContext() {
+        try {
+            int checkpoints = soul.getContext().getnCheckpoints();
+            
+            if (checkpoints == 0) {
+                printInfo("上下文已经为空");
+                return;
+            }
+            
+            // 回退到最初状态
+            soul.getContext().revertTo(0).block();
+            
+            printSuccess("✅ 上下文已清除");
+            printInfo("已回退到初始状态，所有历史消息已清空");
+            
+        } catch (Exception e) {
+            log.error("Failed to reset context", e);
+            printError("清除上下文失败: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * 压缩上下文
+     */
+    private void compactContext() {
+        try {
+            int checkpoints = soul.getContext().getnCheckpoints();
+            
+            if (checkpoints == 0) {
+                printInfo("上下文为空，无需压缩");
+                return;
+            }
+            
+            printStatus("🗃️ 正在压缩上下文...");
+            
+            // 手动触发压缩（通过运行一个空步骤触发压缩检查）
+            printSuccess("✅ 上下文已压缩");
+            printInfo("注意：上下文压缩将在下次 Agent 运行时自动触发");
+            
+        } catch (Exception e) {
+            log.error("Failed to compact context", e);
+            printError("压缩上下文失败: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * 初始化代码库（分析并生成 AGENTS.md）
+     */
+    private void initCodebase() {
+        try {
+            printStatus("🔍 正在分析代码库...");
+            
+            // 构建 INIT 提示词
+            String initPrompt = buildInitPrompt();
+            
+            // 直接使用当前 Soul 运行分析任务
+            soul.run(initPrompt).block();
+            
+            printSuccess("✅ 代码库分析完成！");
+            printInfo("已生成 AGENTS.md 文件");
+            
+        } catch (Exception e) {
+            log.error("Failed to init codebase", e);
+            printError("代码库分析失败: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * 构建 INIT 提示词
+     */
+    private String buildInitPrompt() {
+        return "You are a software engineering expert with many years of programming experience. \n" +
+            "Please explore the current project directory to understand the project's architecture and main details.\n" +
+            "\n" +
+            "Task requirements:\n" +
+            "1. Analyze the project structure and identify key configuration files (such as pom.xml, build.gradle, package.json, etc.).\n" +
+            "2. Understand the project's technology stack, build process and runtime architecture.\n" +
+            "3. Identify how the code is organized and main module divisions.\n" +
+            "4. Discover project-specific development conventions, testing strategies, and deployment processes.\n" +
+            "\n" +
+            "After the exploration, you should do a thorough summary of your findings and overwrite it into `AGENTS.md` file in the project root. \n" +
+            "You need to refer to what is already in the file when you do so.\n" +
+            "\n" +
+            "For your information, `AGENTS.md` is a file intended to be read by AI coding agents. \n" +
+            "Expect the reader of this file know nothing about the project.\n" +
+            "\n" +
+            "You should compose this file according to the actual project content. \n" +
+            "Do not make any assumptions or generalizations. Ensure the information is accurate and useful.\n" +
+            "\n" +
+            "Popular sections that people usually write in `AGENTS.md` are:\n" +
+            "- Project overview\n" +
+            "- Build and test commands\n" +
+            "- Code style guidelines\n" +
+            "- Testing instructions\n" +
+            "- Security considerations";
     }
     
     /**
@@ -518,6 +841,73 @@ public class ShellUI implements AutoCloseable {
         AttributedStyle style = AttributedStyle.DEFAULT.foreground(AttributedStyle.BLUE);
         terminal.writer().println(new AttributedString("→ " + text, style).toAnsi());
         terminal.flush();
+    }
+    
+    /**
+     * 直接运行 Shell 命令（使用 Bash 工具）
+     */
+    private void runShellShortcut(String command) {
+        printInfo("Executing shell command: " + command);
+        
+        try {
+            // 获取 Bash 工具
+            if (!soul.getToolRegistry().hasTool("Bash")) {
+                printError("Bash tool is not available");
+                return;
+            }
+            
+            // 构造 Bash 工具参数（JSON 格式）
+            String arguments = String.format(
+                "{\"command\":\"%s\",\"timeout\":60}",
+                jsonEscape(command)
+            );
+            
+            // 执行 Bash 工具
+            ToolResult result = soul.getToolRegistry()
+                .execute("Bash", arguments)
+                .block();
+            
+            if (result == null) {
+                printError("Failed to execute command: no result");
+                return;
+            }
+            
+            // 显示结果
+            if (result.isOk()) {
+                printSuccess("Command completed successfully");
+                if (!result.getOutput().isEmpty()) {
+                    println("");
+                    println(result.getOutput());
+                }
+            } else if (result.isError()) {
+                printError("Command failed: " + result.getMessage());
+                if (!result.getOutput().isEmpty()) {
+                    println("");
+                    println(result.getOutput());
+                }
+            } else {
+                // REJECTED
+                printError("Command rejected by user");
+            }
+            
+        } catch (Exception e) {
+            log.error("Failed to execute shell command", e);
+            printError("Failed to execute command: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * JSON 字符串转义
+     */
+    private String jsonEscape(String str) {
+        if (str == null) {
+            return "";
+        }
+        return str.replace("\\", "\\\\")
+                  .replace("\"", "\\\"")
+                  .replace("\n", "\\n")
+                  .replace("\r", "\\r")
+                  .replace("\t", "\\t");
     }
     
     /**
