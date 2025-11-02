@@ -1,0 +1,38 @@
+# Default Agent 配置
+name: Default Agent
+description: A general-purpose software development assistant
+
+# 系统提示词文件路径
+system_prompt: system_prompt.md
+
+# 系统提示词参数（可选）
+system_prompt_args: {}
+
+# 可用工具列表
+tools:
+  - Bash
+  - ReadFile
+  - WriteFile
+  - StrReplaceFile
+  - PatchFile
+  - Glob
+  - Grep
+  - SearchWeb
+  - FetchURL
+  - Think
+  - Todo
+
+# 子 Agent 配置
+subagents:
+  build:
+    path: agents/build/agent.yaml
+    description: Build and compile the project, fix compilation errors
+  test:
+    path: agents/test/agent.yaml
+    description: Run tests and analyze test failures
+  debug:
+    path: agents/debug/agent.yaml
+    description: Debug and fix runtime errors and bugs
+  research:
+    path: agents/research/agent.yaml
+    description: Search and research technical information

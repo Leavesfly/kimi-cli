@@ -1,0 +1,18 @@
+# Debug Agent - 专门负责调试和修复错误
+name: Debug Agent
+description: Specialized agent for debugging and fixing code errors
+
+# 系统提示词
+system_prompt: system_prompt.md
+
+# 系统提示词参数
+system_prompt_args: {}
+
+# 可用工具（专注于调试）
+tools:
+  - Bash          # 运行代码验证
+  - ReadFile      # 读取源代码
+  - WriteFile     # 修复代码
+  - StrReplaceFile # 精确修改
+  - Grep          # 搜索相关代码
+  - Think         # 分析问题

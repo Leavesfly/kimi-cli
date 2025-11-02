@@ -1,0 +1,17 @@
+# Build Agent - 专门负责构建和编译项目
+name: Build Agent
+description: Specialized agent for building and compiling projects
+
+# 系统提示词
+system_prompt: system_prompt.md
+
+# 系统提示词参数
+system_prompt_args: {}
+
+# 可用工具（专注于构建相关）
+tools:
+  - Bash          # 执行构建命令
+  - ReadFile      # 读取构建配置
+  - WriteFile     # 修改配置文件
+  - Grep          # 搜索错误信息
+  - Think         # 分析构建问题

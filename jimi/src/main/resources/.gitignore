@@ -1,0 +1,15 @@
+# Jimi 配置文件 (包含敏感信息)
+config.yaml
+*.env
+.env.*
+
+# MCP 配置 (可能包含密钥)
+mcp-config.json
+
+# 会话历史
+*.jsonl
+.jimi_history*
+
+# 临时文件
+*.tmp
+*.bak

@@ -1,0 +1,82 @@
+# Default Agent 完整配置示例
+# 这是主 Agent 的配置文件，展示所有可用选项
+
+# Agent 基本信息
+name: Default Agent
+description: A general-purpose software development assistant with specialized subagent support
+
+# 系统提示词文件路径（相对于此配置文件）
+system_prompt: system_prompt.md
+
+# 系统提示词参数（可选）
+# 这些参数会替换 system_prompt.md 中的占位符
+system_prompt_args:
+  # 示例：自定义参数
+  # CUSTOM_PARAM: "some value"
+
+# 可用工具列表
+# 主 Agent 拥有所有核心工具的访问权限
+tools:
+  # 文件操作工具
+  - ReadFile          # 读取文件内容
+  - WriteFile         # 写入文件（覆盖）
+  - StrReplaceFile    # 字符串替换修改文件
+  - PatchFile         # 使用 Unified Diff 格式修改文件
+  - Glob              # 使用通配符搜索文件
+  - Grep              # 使用正则表达式搜索文件内容
+  
+  # Shell 工具
+  - Bash              # 执行 Shell 命令
+  
+  # Web 工具
+  - SearchWeb         # 搜索网页
+  - FetchURL          # 获取 URL 内容
+  
+  # 辅助工具
+  - Think             # 思考和推理工具
+  - Todo              # 任务管理工具
+  
+  # 注意：Task 工具会在定义 subagents 时自动注册，无需手动添加
+
+# 子 Agent 配置
+# 定义专门的子 Agent 处理特定类型的任务
+subagents:
+  # 构建 Agent - 处理编译和构建任务
+  build:
+    # 子 Agent 配置文件路径（相对于 agents 目录）
+    path: agents/build/agent.yaml
+    # 描述（主 Agent 用此判断何时调用）
+    description: Build and compile the project, fix compilation errors, manage dependencies
+  
+  # 测试 Agent - 处理测试相关任务
+  test:
+    path: agents/test/agent.yaml
+    description: Run tests, analyze test failures, improve test coverage, write new tests
+  
+  # 调试 Agent - 处理错误调试
+  debug:
+    path: agents/debug/agent.yaml
+    description: Debug runtime errors, fix bugs, analyze stack traces and crashes
+  
+  # 研究 Agent - 处理技术调研
+  research:
+    path: agents/research/agent.yaml
+    description: Search and research technical information, find best practices, compare solutions
+
+# 高级选项（可选）
+
+# 工具使用策略
+# tool_usage_strategy:
+#   # 是否优先使用子 Agent
+#   prefer_subagents: true
+#   # 子 Agent 响应最小长度（字符数）
+#   min_subagent_response_length: 200
+#   # 子 Agent 最大重试次数
+#   max_subagent_retries: 1
+
+# 上下文管理
+# context_management:
+#   # 自动清理策略
+#   auto_cleanup: true
+#   # 上下文保留策略
+#   retention_policy: important_only

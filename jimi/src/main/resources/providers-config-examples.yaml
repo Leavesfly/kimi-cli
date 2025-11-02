@@ -1,0 +1,169 @@
+# 各种 LLM Provider 的配置示例
+
+# ============================================================================
+# Kimi (Moonshot AI)
+# 推荐：长上下文、中文优化、工具调用
+# ============================================================================
+kimi_8k:
+  llm:
+    provider:
+      type: kimi
+      base_url: https://api.moonshot.cn
+      api_key: ${KIMI_API_KEY}
+    model:
+      model: moonshot-v1-8k
+      max_context_size: 8000
+
+kimi_32k:
+  llm:
+    provider:
+      type: kimi
+      base_url: https://api.moonshot.cn
+      api_key: ${KIMI_API_KEY}
+    model:
+      model: moonshot-v1-32k
+      max_context_size: 32000
+
+kimi_128k:
+  llm:
+    provider:
+      type: kimi
+      base_url: https://api.moonshot.cn
+      api_key: ${KIMI_API_KEY}
+    model:
+      model: moonshot-v1-128k
+      max_context_size: 128000
+
+# ============================================================================
+# DeepSeek
+# 推荐：代码生成、成本优化
+# ============================================================================
+deepseek_chat:
+  llm:
+    provider:
+      type: deepseek
+      base_url: https://api.deepseek.com
+      api_key: ${DEEPSEEK_API_KEY}
+    model:
+      model: deepseek-chat
+      max_context_size: 32000
+
+deepseek_coder:
+  llm:
+    provider:
+      type: deepseek
+      base_url: https://api.deepseek.com
+      api_key: ${DEEPSEEK_API_KEY}
+    model:
+      model: deepseek-coder
+      max_context_size: 16000
+
+# ============================================================================
+# Qwen (通义千问)
+# 推荐：阿里云生态、中文场景
+# ============================================================================
+qwen_turbo:
+  llm:
+    provider:
+      type: qwen
+      base_url: https://dashscope.aliyuncs.com/compatible-mode
+      api_key: ${QWEN_API_KEY}
+    model:
+      model: qwen-turbo
+      max_context_size: 8000
+
+qwen_plus:
+  llm:
+    provider:
+      type: qwen
+      base_url: https://dashscope.aliyuncs.com/compatible-mode
+      api_key: ${QWEN_API_KEY}
+    model:
+      model: qwen-plus
+      max_context_size: 32000
+
+qwen_max:
+  llm:
+    provider:
+      type: qwen
+      base_url: https://dashscope.aliyuncs.com/compatible-mode
+      api_key: ${QWEN_API_KEY}
+    model:
+      model: qwen-max
+      max_context_size: 8000
+
+# ============================================================================
+# Ollama
+# 推荐：本地部署、隐私保护、离线使用
+# ============================================================================
+ollama_llama3:
+  llm:
+    provider:
+      type: ollama
+      base_url: http://localhost:11434
+    model:
+      model: llama3
+      max_context_size: 8000
+
+ollama_qwen2:
+  llm:
+    provider:
+      type: ollama
+      base_url: http://localhost:11434
+    model:
+      model: qwen2
+      max_context_size: 32000
+
+ollama_deepseek_coder:
+  llm:
+    provider:
+      type: ollama
+      base_url: http://localhost:11434
+    model:
+      model: deepseek-coder
+      max_context_size: 16000
+
+ollama_codellama:
+  llm:
+    provider:
+      type: ollama
+      base_url: http://localhost:11434
+    model:
+      model: codellama
+      max_context_size: 16000
+
+# ============================================================================
+# OpenAI
+# 推荐：英文场景、复杂推理
+# ============================================================================
+openai_gpt4:
+  llm:
+    provider:
+      type: openai
+      base_url: https://api.openai.com
+      api_key: ${OPENAI_API_KEY}
+    model:
+      model: gpt-4
+      max_context_size: 8000
+
+openai_gpt35:
+  llm:
+    provider:
+      type: openai
+      base_url: https://api.openai.com
+      api_key: ${OPENAI_API_KEY}
+    model:
+      model: gpt-3.5-turbo
+      max_context_size: 16000
+
+# ============================================================================
+# 通用配置（所有 Provider 共用）
+# ============================================================================
+common:
+  loop_control:
+    max_steps_per_run: 10
+  
+  session:
+    id: default
+    work_dir: .
+    history_file: .jimi_history.jsonl

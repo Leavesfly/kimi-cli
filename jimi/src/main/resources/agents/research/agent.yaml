@@ -1,0 +1,17 @@
+# Research Agent - 专门负责搜索和研究技术信息
+name: Research Agent
+description: Specialized agent for searching and researching technical information
+
+# 系统提示词
+system_prompt: system_prompt.md
+
+# 系统提示词参数
+system_prompt_args: {}
+
+# 可用工具（专注于信息搜集）
+tools:
+  - SearchWeb     # 搜索技术文档
+  - FetchURL      # 获取网页内容
+  - ReadFile      # 读取本地文档
+  - Grep          # 搜索代码示例
+  - Think         # 总结和分析

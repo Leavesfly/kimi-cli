@@ -1,0 +1,17 @@
+# Test Agent - 专门负责运行和分析测试
+name: Test Agent
+description: Specialized agent for running tests and analyzing test results
+
+# 系统提示词
+system_prompt: system_prompt.md
+
+# 系统提示词参数
+system_prompt_args: {}
+
+# 可用工具（专注于测试相关）
+tools:
+  - Bash          # 执行测试命令
+  - ReadFile      # 读取测试文件和结果
+  - WriteFile     # 创建/修改测试
+  - Grep          # 搜索测试失败信息
+  - Think         # 分析测试结果
