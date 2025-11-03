@@ -1,6 +1,7 @@
 package io.leavesfly.jimi.ui.shell.input;
 
 import io.leavesfly.jimi.command.CommandContext;
+import io.leavesfly.jimi.ui.shell.ShellContext;
 
 /**
  * 输入处理器接口
@@ -24,7 +25,7 @@ public interface InputProcessor {
      * @return 是否继续运行（true 继续，false 退出）
      * @throws Exception 处理过程中的异常
      */
-    boolean process(String input, CommandContext context) throws Exception;
+    boolean process(String input, ShellContext context) throws Exception;
     
     /**
      * 获取处理器的优先级

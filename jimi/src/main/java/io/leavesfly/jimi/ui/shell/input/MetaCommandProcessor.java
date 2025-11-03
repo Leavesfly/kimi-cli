@@ -2,6 +2,7 @@ package io.leavesfly.jimi.ui.shell.input;
 
 import io.leavesfly.jimi.command.CommandContext;
 import io.leavesfly.jimi.command.CommandRegistry;
+import io.leavesfly.jimi.ui.shell.ShellContext;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -28,7 +29,7 @@ public class MetaCommandProcessor implements InputProcessor {
     }
     
     @Override
-    public boolean process(String input, CommandContext context) throws Exception {
+    public boolean process(String input, ShellContext context) throws Exception {
         // 移除 / 前缀
         String commandLine = input.substring(1).trim();
         

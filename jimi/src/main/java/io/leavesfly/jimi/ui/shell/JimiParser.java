@@ -1,6 +1,5 @@
 package io.leavesfly.jimi.ui.shell;
 
-import org.jline.reader.EOFError;
 import org.jline.reader.ParsedLine;
 import org.jline.reader.Parser;
 import org.jline.reader.impl.DefaultParser;

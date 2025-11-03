@@ -2,6 +2,7 @@ package io.leavesfly.jimi.ui.shell.input;
 
 import io.leavesfly.jimi.tool.ToolResult;
 import io.leavesfly.jimi.command.CommandContext;
+import io.leavesfly.jimi.ui.shell.ShellContext;
 import io.leavesfly.jimi.ui.shell.output.OutputFormatter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -23,7 +24,7 @@ public class ShellShortcutProcessor implements InputProcessor {
     }
     
     @Override
-    public boolean process(String input, CommandContext context) throws Exception {
+    public boolean process(String input, ShellContext context) throws Exception {
         OutputFormatter out = context.getOutputFormatter();
         
         String shellCommand = input.substring(1).trim();
