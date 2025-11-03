@@ -7,7 +7,7 @@ import io.leavesfly.jimi.config.LoopControlConfig;
 import io.leavesfly.jimi.llm.LLM;
 import io.leavesfly.jimi.llm.MockChatProvider;
 import io.leavesfly.jimi.session.Session;
-import io.leavesfly.jimi.soul.agent.Agent;
+import io.leavesfly.jimi.agent.Agent;
 import io.leavesfly.jimi.soul.runtime.BuiltinSystemPromptArgs;
 import io.leavesfly.jimi.soul.runtime.Runtime;
 import io.leavesfly.jimi.tool.ToolRegistry;

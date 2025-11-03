@@ -1,4 +1,4 @@
-package io.leavesfly.jimi.soul.agent;
+package io.leavesfly.jimi.agent;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;

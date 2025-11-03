@@ -1,4 +1,4 @@
-package io.leavesfly.jimi.soul.agent;
+package io.leavesfly.jimi.agent;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

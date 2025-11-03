@@ -1,8 +1,8 @@
 package io.leavesfly.jimi;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.leavesfly.jimi.soul.agent.AgentSpecLoader;
-import io.leavesfly.jimi.soul.agent.ResolvedAgentSpec;
+import io.leavesfly.jimi.agent.AgentSpecLoader;
+import io.leavesfly.jimi.agent.ResolvedAgentSpec;
 import io.leavesfly.jimi.config.JimiConfig;
 import io.leavesfly.jimi.config.LLMModelConfig;
 import io.leavesfly.jimi.config.LLMProviderConfig;
@@ -13,7 +13,7 @@ import io.leavesfly.jimi.llm.provider.KimiChatProvider;
 import io.leavesfly.jimi.llm.provider.OpenAICompatibleChatProvider;
 import io.leavesfly.jimi.session.Session;
 import io.leavesfly.jimi.soul.JimiSoul;
-import io.leavesfly.jimi.soul.agent.Agent;
+import io.leavesfly.jimi.agent.Agent;
 import io.leavesfly.jimi.soul.approval.Approval;
 import io.leavesfly.jimi.soul.Context;
 
@@ -26,15 +26,12 @@ import io.leavesfly.jimi.tool.mcp.MCPTool;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 /**

@@ -5,7 +5,7 @@ import io.leavesfly.jimi.exception.LLMNotSetException;
 import io.leavesfly.jimi.exception.MaxStepsReachedException;
 import io.leavesfly.jimi.llm.ChatCompletionResult;
 import io.leavesfly.jimi.llm.LLM;
-import io.leavesfly.jimi.soul.agent.Agent;
+import io.leavesfly.jimi.agent.Agent;
 import io.leavesfly.jimi.soul.compaction.Compaction;
 import io.leavesfly.jimi.soul.compaction.SimpleCompaction;
 import io.leavesfly.jimi.soul.message.*;

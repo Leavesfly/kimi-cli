@@ -2,12 +2,12 @@ package io.leavesfly.jimi.tool.task;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.leavesfly.jimi.soul.agent.AgentSpecLoader;
-import io.leavesfly.jimi.soul.agent.ResolvedAgentSpec;
-import io.leavesfly.jimi.soul.agent.SubagentSpec;
+import io.leavesfly.jimi.agent.AgentSpecLoader;
+import io.leavesfly.jimi.agent.ResolvedAgentSpec;
+import io.leavesfly.jimi.agent.SubagentSpec;
 import io.leavesfly.jimi.session.Session;
 import io.leavesfly.jimi.soul.JimiSoul;
-import io.leavesfly.jimi.soul.agent.Agent;
+import io.leavesfly.jimi.agent.Agent;
 import io.leavesfly.jimi.soul.Context;
 import io.leavesfly.jimi.soul.message.Message;
 import io.leavesfly.jimi.soul.message.MessageRole;

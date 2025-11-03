@@ -1,4 +1,4 @@
-package io.leavesfly.jimi.soul.agent;
+package io.leavesfly.jimi.agent;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
