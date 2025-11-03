@@ -8,7 +8,7 @@ import io.leavesfly.jimi.config.LoopControlConfig;
 import io.leavesfly.jimi.llm.LLM;
 import io.leavesfly.jimi.session.Session;
 import io.leavesfly.jimi.soul.approval.Approval;
-import io.leavesfly.jimi.soul.denwarenji.DenwaRenji;
+
 import io.leavesfly.jimi.soul.runtime.BuiltinSystemPromptArgs;
 import io.leavesfly.jimi.soul.runtime.Runtime;
 import io.leavesfly.jimi.tool.ToolResult;
@@ -79,7 +79,6 @@ class TaskToolDemo {
                 .session(session)
                 .builtinArgs(builtinArgs)
                 .approval(new Approval(true))  // YOLO 模式
-                .denwaRenji(new DenwaRenji())
                 .build();
 
         // 创建模拟的 Agent 规范（包含子 Agent）

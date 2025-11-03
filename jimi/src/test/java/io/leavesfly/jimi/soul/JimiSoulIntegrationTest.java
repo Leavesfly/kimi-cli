@@ -8,8 +8,6 @@ import io.leavesfly.jimi.llm.LLM;
 import io.leavesfly.jimi.llm.MockChatProvider;
 import io.leavesfly.jimi.session.Session;
 import io.leavesfly.jimi.soul.agent.Agent;
-import io.leavesfly.jimi.soul.agent.AgentLoader;
-import io.leavesfly.jimi.soul.context.Context;
 import io.leavesfly.jimi.soul.runtime.BuiltinSystemPromptArgs;
 import io.leavesfly.jimi.soul.runtime.Runtime;
 import io.leavesfly.jimi.tool.ToolRegistry;
@@ -250,7 +248,6 @@ class JimiSoulIntegrationTest {
                 .session(session)
                 .builtinArgs(builtinArgs)
                 .approval(new io.leavesfly.jimi.soul.approval.Approval(true)) // YOLO模式
-                .denwaRenji(new io.leavesfly.jimi.soul.denwarenji.DenwaRenji())
                 .build();
     }
 }

@@ -191,6 +191,7 @@
     </dependencies>
 
     <build>
+        <finalName>jimi-${project.version}</finalName>
         <plugins>
             <!-- Spring Boot Maven Plugin -->
             <plugin>
@@ -200,6 +201,13 @@
                 <configuration>
                     <mainClass>io.leavesfly.jimi.JimiApplication</mainClass>
                     <executable>true</executable>
+                    <layout>JAR</layout>
+                    <excludes>
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+                    </excludes>
                 </configuration>
                 <executions>
                     <execution>

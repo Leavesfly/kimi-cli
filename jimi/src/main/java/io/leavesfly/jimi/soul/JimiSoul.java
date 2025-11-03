@@ -8,7 +8,6 @@ import io.leavesfly.jimi.llm.LLM;
 import io.leavesfly.jimi.soul.agent.Agent;
 import io.leavesfly.jimi.soul.compaction.Compaction;
 import io.leavesfly.jimi.soul.compaction.SimpleCompaction;
-import io.leavesfly.jimi.soul.context.Context;
 import io.leavesfly.jimi.soul.message.*;
 import io.leavesfly.jimi.soul.runtime.Runtime;
 import io.leavesfly.jimi.tool.ToolRegistry;

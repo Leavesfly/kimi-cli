@@ -1,7 +1,6 @@
 package io.leavesfly.jimi;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.leavesfly.jimi.agentspec.AgentSpec;
 import io.leavesfly.jimi.agentspec.AgentSpecLoader;
 import io.leavesfly.jimi.agentspec.ResolvedAgentSpec;
 import io.leavesfly.jimi.config.JimiConfig;
@@ -16,8 +15,8 @@ import io.leavesfly.jimi.session.Session;
 import io.leavesfly.jimi.soul.JimiSoul;
 import io.leavesfly.jimi.soul.agent.Agent;
 import io.leavesfly.jimi.soul.approval.Approval;
-import io.leavesfly.jimi.soul.context.Context;
-import io.leavesfly.jimi.soul.denwarenji.DenwaRenji;
+import io.leavesfly.jimi.soul.Context;
+
 import io.leavesfly.jimi.soul.runtime.BuiltinSystemPromptArgs;
 import io.leavesfly.jimi.soul.runtime.Runtime;
 import io.leavesfly.jimi.tool.ToolRegistry;
@@ -81,7 +80,7 @@ public class JimiFactory {
 
                 // 2. 创建 Runtime 依赖
                 Approval approval = new Approval(yolo);
-                DenwaRenji denwaRenji = new DenwaRenji();
+
                 BuiltinSystemPromptArgs builtinArgs = createBuiltinArgs(session);
 
                 Runtime runtime = Runtime.builder()
@@ -89,7 +88,6 @@ public class JimiFactory {
                         .llm(llm)
                         .session(session)
                         .approval(approval)
-                        .denwaRenji(denwaRenji)
                         .builtinArgs(builtinArgs)
                         .build();
 

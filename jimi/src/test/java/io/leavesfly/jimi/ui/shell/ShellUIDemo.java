@@ -1,21 +1,7 @@
 package io.leavesfly.jimi.ui.shell;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.leavesfly.jimi.config.JimiConfig;
-import io.leavesfly.jimi.config.LoopControlConfig;
-import io.leavesfly.jimi.llm.LLM;
-import io.leavesfly.jimi.llm.MockChatProvider;
-import io.leavesfly.jimi.session.Session;
-import io.leavesfly.jimi.soul.JimiSoul;
-import io.leavesfly.jimi.soul.agent.Agent;
-import io.leavesfly.jimi.soul.context.Context;
-import io.leavesfly.jimi.soul.runtime.Runtime;
-import io.leavesfly.jimi.tool.ToolRegistry;
-
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Shell UI 演示程序
