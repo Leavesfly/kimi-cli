@@ -1,8 +1,8 @@
 package io.leavesfly.jimi;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.leavesfly.jimi.agentspec.AgentSpecLoader;
-import io.leavesfly.jimi.agentspec.ResolvedAgentSpec;
+import io.leavesfly.jimi.soul.agent.AgentSpecLoader;
+import io.leavesfly.jimi.soul.agent.ResolvedAgentSpec;
 import io.leavesfly.jimi.config.JimiConfig;
 import io.leavesfly.jimi.config.LLMModelConfig;
 import io.leavesfly.jimi.config.LLMProviderConfig;
@@ -91,9 +91,16 @@ public class JimiFactory {
                         .builtinArgs(builtinArgs)
                         .build();
 
-                // 3. 加载 Agent 规范
+                // 3. 加载 Agent 规范和 Agent 实例
                 ResolvedAgentSpec resolvedAgentSpec = loadAgentSpec(agentSpecPath, runtime);
-                Agent agent = createAgentFromSpec(resolvedAgentSpec, runtime);
+
+                // 使用 AgentSpecLoader.loadAgent() 加载 Agent（包含系统提示词处理）
+                Agent agent = AgentSpecLoader.loadAgent(
+                                agentSpecPath != null ? agentSpecPath : getDefaultAgentPath(), runtime)
+                        .block();
+                if (agent == null) {
+                    throw new RuntimeException("Failed to load agent");
+                }
 
                 // 4. 创建 Context 并恢复历史
                 Context context = new Context(session.getHistoryFile(), objectMapper);
@@ -226,45 +233,6 @@ public class JimiFactory {
     }
 
     /**
-     * 从规范创建 Agent
-     */
-    private Agent createAgentFromSpec(ResolvedAgentSpec resolved, Runtime runtime) throws IOException {
-        // 加载系统提示词
-        String systemPrompt = loadSystemPrompt(resolved.getSystemPromptPath(),
-                resolved.getSystemPromptArgs(), runtime.getBuiltinArgs());
-
-        return Agent.builder()
-                .name(resolved.getName())
-                .systemPrompt(systemPrompt)
-                .tools(new ArrayList<>(resolved.getTools()))
-                .build();
-    }
-
-    /**
-     * 加载系统提示词
-     */
-    private String loadSystemPrompt(Path promptPath, Map<String, String> promptArgs,
-                                    BuiltinSystemPromptArgs builtinArgs) throws IOException {
-        String template = Files.readString(promptPath);
-
-        // 替换内置参数
-        template = template.replace("{{KIMI_NOW}}", builtinArgs.getKimiNow());
-        template = template.replace("{{KIMI_WORK_DIR}}", builtinArgs.getKimiWorkDir().toAbsolutePath().toString());
-        template = template.replace("{{KIMI_WORK_DIR_LS}}", builtinArgs.getKimiWorkDirLs());
-        template = template.replace("{{KIMI_AGENTS_MD}}", builtinArgs.getKimiAgentsMd());
-
-        // 替换自定义参数
-        if (promptArgs != null) {
-            for (Map.Entry<String, String> entry : promptArgs.entrySet()) {
-                String placeholder = "{{" + entry.getKey() + "}}";
-                template = template.replace(placeholder, entry.getValue());
-            }
-        }
-
-        return template;
-    }
-
-    /**
      * 获取默认 Agent 路径
      */
     private Path getDefaultAgentPath() {
@@ -312,7 +280,7 @@ public class JimiFactory {
         // 加载 MCP 工具
         if (mcpConfigFiles != null && !mcpConfigFiles.isEmpty()) {
             MCPToolLoader mcpLoader = new MCPToolLoader(objectMapper);
-            
+
             for (Path configFile : mcpConfigFiles) {
                 try {
                     List<MCPTool> mcpTools = mcpLoader.loadFromFile(configFile, registry);

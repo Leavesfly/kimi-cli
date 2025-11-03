@@ -1,8 +1,8 @@
 package io.leavesfly.jimi.demo;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.leavesfly.jimi.agentspec.ResolvedAgentSpec;
-import io.leavesfly.jimi.agentspec.SubagentSpec;
+import io.leavesfly.jimi.soul.agent.ResolvedAgentSpec;
+import io.leavesfly.jimi.soul.agent.SubagentSpec;
 import io.leavesfly.jimi.config.JimiConfig;
 import io.leavesfly.jimi.config.LoopControlConfig;
 import io.leavesfly.jimi.session.Session;
