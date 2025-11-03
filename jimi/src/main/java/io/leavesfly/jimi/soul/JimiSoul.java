@@ -58,6 +58,7 @@ public class JimiSoul implements Soul {
         this.toolRegistry = toolRegistry;
         this.objectMapper = objectMapper;
         this.wire = new WireImpl();
+        runtime.getApproval().asFlux().subscribe(wire::send);
         this.compaction = new SimpleCompaction();
     }
     
@@ -95,7 +96,17 @@ public class JimiSoul implements Soul {
         status.put("messageCount", context.getHistory().size());
         status.put("tokenCount", context.getTokenCount());
         status.put("checkpointCount", context.getnCheckpoints());
-        // TODO: 添加上下文使用率等信息
+        LLM llm = runtime.getLlm();
+        if (llm != null) {
+            int maxContextSize = llm.getMaxContextSize();
+            int used = context.getTokenCount();
+            int available = Math.max(0, maxContextSize - RESERVED_TOKENS - used);
+            double usagePercent = maxContextSize > 0 ? (used * 100.0 / maxContextSize) : 0.0;
+            status.put("maxContextSize", maxContextSize);
+            status.put("reservedTokens", RESERVED_TOKENS);
+            status.put("availableTokens", available);
+            status.put("contextUsagePercent", Math.round(usagePercent * 100.0) / 100.0);
+        }
         return status;
     }
     

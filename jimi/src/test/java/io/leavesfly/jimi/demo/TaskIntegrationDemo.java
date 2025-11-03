@@ -64,7 +64,7 @@ public class TaskIntegrationDemo {
         
         BuiltinSystemPromptArgs builtinArgs = BuiltinSystemPromptArgs.builder()
                 .kimiNow(ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME))
-                .kimiWorkDir(tempDir.toString())
+                .kimiWorkDir(tempDir)
                 .kimiWorkDirLs("")
                 .kimiAgentsMd("")
                 .build();

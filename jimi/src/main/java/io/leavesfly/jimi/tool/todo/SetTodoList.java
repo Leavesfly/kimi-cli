@@ -2,6 +2,7 @@ package io.leavesfly.jimi.tool.todo;
 
 import io.leavesfly.jimi.tool.AbstractTool;
 import io.leavesfly.jimi.tool.ToolResult;
+import io.leavesfly.jimi.tool.ToolResultBuilder;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -47,31 +48,57 @@ public class SetTodoList extends AbstractTool<SetTodoList.Params> {
     @AllArgsConstructor
     public static class Params {
         /**
-         * 待办事项列表
+         * 待办事项列表（基础列表）
          */
         @Builder.Default
         private List<Todo> todos = new ArrayList<>();
+        
+        /**
+         * 对现有待办的状态更新（按标题匹配）
+         */
+        @Builder.Default
+        private List<Todo> updates = new ArrayList<>();
+        
+        /**
+         * 需要新增的待办项（当标题不存在时添加）
+         */
+        @Builder.Default
+        private List<Todo> adds = new ArrayList<>();
+        
+        /**
+         * 是否移除已完成（Done）的待办
+         */
+        @Builder.Default
+        private boolean removeCompleted = false;
+    }
+    
+    private String normalizeStatus(String status) {
+        if (status == null || status.isBlank()) return "Pending";
+        String s = status.trim();
+        if (s.equalsIgnoreCase("pending")) return "Pending";
+        if (s.equalsIgnoreCase("inprogress") || s.equalsIgnoreCase("in progress") || s.equalsIgnoreCase("in_progress")) return "In Progress";
+        if (s.equalsIgnoreCase("done") || s.equalsIgnoreCase("completed") || s.equalsIgnoreCase("complete")) return "Done";
+        return "Pending";
     }
     
     public SetTodoList() {
         super(
             "SetTodoList",
             """
-            Set or update a todo list to track task progress.
+            更新整份待办事项列表（Todo List）。
             
-            This tool allows you to manage a list of tasks with their current status.
-            Each todo item has a title and a status (Pending, In Progress, or Done).
+            使用场景：
+            - 当一个任务包含多个子任务/里程碑时，用于拆解并追踪进度
+            - 当一次请求中包含多项任务时，用于统一维护它们的状态
             
-            Use this tool to:
-            - Create a new todo list
-            - Update the status of existing todos
-            - Add new todos to the list
-            - Remove completed todos
+            使用约束：
+            - 这是唯一的待办工具，每次操作都需要提交“完整的”待办列表
+            - 请正确维护每项的标题与状态（状态仅支持：Pending、In Progress、Done）
             
-            Parameters:
-            - todos: List of todo items, each with a title and status
+            参数：
+            - todos：待办事项数组，每项包含 title 与 status
             
-            Example:
+            示例：
             {
               "todos": [
                 {"title": "Research API integration", "status": "Done"},
@@ -87,26 +114,84 @@ public class SetTodoList extends AbstractTool<SetTodoList.Params> {
     @Override
     public Mono<ToolResult> execute(Params params) {
         return Mono.defer(() -> {
-            if (params.todos == null || params.todos.isEmpty()) {
-                return Mono.just(ToolResult.ok(
-                    "Todo list is empty.",
-                    "Empty todo list"
-                ));
+            ToolResultBuilder trb = new ToolResultBuilder();
+            
+            List<Todo> list = new ArrayList<>();
+            if (params != null && params.getTodos() != null) {
+                for (Todo t : params.getTodos()) {
+                    String title = (t != null && t.getTitle() != null) ? t.getTitle().trim() : "(未命名)";
+                    String status = (t != null) ? normalizeStatus(t.getStatus()) : "Pending";
+                    list.add(Todo.builder().title(title).status(status).build());
+                }
             }
             
-            // 渲染待办事项列表
-            StringBuilder rendered = new StringBuilder();
-            for (Todo todo : params.todos) {
-                rendered.append("- ")
-                    .append(todo.getTitle())
-                    .append(" [")
-                    .append(todo.getStatus())
-                    .append("]\n");
+            // 更新现有待办的状态（按标题匹配）
+            if (params != null && params.getUpdates() != null) {
+                for (Todo upd : params.getUpdates()) {
+                    if (upd == null || upd.getTitle() == null) continue;
+                    String title = upd.getTitle().trim();
+                    String newStatus = normalizeStatus(upd.getStatus());
+                    for (Todo t : list) {
+                        if (t.getTitle() != null && t.getTitle().equals(title)) {
+                            t.setStatus(newStatus);
+                            break;
+                        }
+                    }
+                }
             }
             
-            log.info("Todo list updated with {} items", params.todos.size());
+            // 添加新的待办（仅当标题不存在时添加）
+            if (params != null && params.getAdds() != null) {
+                for (Todo add : params.getAdds()) {
+                    if (add == null || add.getTitle() == null) continue;
+                    String title = add.getTitle().trim();
+                    String status = normalizeStatus(add.getStatus());
+                    boolean exists = false;
+                    for (Todo t : list) {
+                        if (t.getTitle() != null && t.getTitle().equals(title)) {
+                            exists = true;
+                            break;
+                        }
+                    }
+                    if (!exists) {
+                        list.add(Todo.builder().title(title).status(status).build());
+                    }
+                }
+            }
             
-            return Mono.just(ToolResult.ok(rendered.toString(), ""));
+            // 移除完成项
+            if (params != null && params.isRemoveCompleted()) {
+                List<Todo> filtered = new ArrayList<>();
+                for (Todo t : list) {
+                    String s = normalizeStatus(t.getStatus());
+                    if (!"Done".equals(s)) {
+                        filtered.add(t);
+                    }
+                }
+                list = filtered;
+            }
+            
+            if (list.isEmpty()) {
+                trb.write("暂无待办事项。\n");
+                return Mono.just(trb.ok("空的待办清单", "空列表"));
+            }
+            
+            int pending = 0, inProgress = 0, done = 0;
+            for (Todo t : list) {
+                String s = normalizeStatus(t.getStatus());
+                switch (s) {
+                    case "Pending": pending++; break;
+                    case "In Progress": inProgress++; break;
+                    case "Done": done++; break;
+                    default: pending++; break;
+                }
+                trb.write(String.format("- %s [%s]\n", t.getTitle(), s));
+            }
+            
+            String brief = String.format("共%d项：Pending %d, In Progress %d, Done %d", list.size(), pending, inProgress, done);
+            log.info("Todo list applied: size={}, pending={}, inProgress={}, done={}", list.size(), pending, inProgress, done);
+            
+            return Mono.just(trb.ok("待办清单已更新" , brief));
         });
     }
 }

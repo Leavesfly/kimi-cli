@@ -9,7 +9,9 @@ import io.leavesfly.jimi.session.SessionManager;
 import io.leavesfly.jimi.soul.JimiSoul;
 import io.leavesfly.jimi.ui.shell.ShellUI;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -38,6 +40,16 @@ public class CliApplication implements CommandLineRunner {
     private final ConfigLoader configLoader;
     private final SessionManager sessionManager;
     private final ObjectMapper objectMapper;
+    private final ApplicationContext applicationContext;
+    
+    @Autowired
+    public CliApplication(ConfigLoader configLoader, SessionManager sessionManager, 
+                         ObjectMapper objectMapper, ApplicationContext applicationContext) {
+        this.configLoader = configLoader;
+        this.sessionManager = sessionManager;
+        this.objectMapper = objectMapper;
+        this.applicationContext = applicationContext;
+    }
     
     @Option(names = {"--verbose"}, description = "Print verbose information")
     private boolean verbose;
@@ -65,12 +77,6 @@ public class CliApplication implements CommandLineRunner {
     
     @Option(names = {"-c", "--command"}, description = "User query to the agent")
     private String command;
-    
-    public CliApplication(ConfigLoader configLoader, SessionManager sessionManager, ObjectMapper objectMapper) {
-        this.configLoader = configLoader;
-        this.sessionManager = sessionManager;
-        this.objectMapper = objectMapper;
-    }
     
     @Override
     public void run(String... args) throws Exception {
@@ -135,7 +141,7 @@ public class CliApplication implements CommandLineRunner {
             }
             
             // 否则启动 Shell UI
-            try (ShellUI shellUI = new ShellUI(soul)) {
+            try (ShellUI shellUI = new ShellUI(soul, applicationContext)) {
                 shellUI.run().block();
             }
             

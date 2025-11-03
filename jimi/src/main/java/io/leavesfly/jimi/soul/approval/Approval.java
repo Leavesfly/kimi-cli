@@ -87,6 +87,10 @@ public class Approval {
         return requestQueue.asFlux().next();
     }
     
+    public reactor.core.publisher.Flux<ApprovalRequest> asFlux() {
+        return requestQueue.asFlux();
+    }
+    
     /**
      * 清除会话级批准缓存
      */

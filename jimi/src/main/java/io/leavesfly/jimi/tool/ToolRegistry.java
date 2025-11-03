@@ -9,6 +9,7 @@ import io.leavesfly.jimi.soul.runtime.BuiltinSystemPromptArgs;
 import io.leavesfly.jimi.tool.bash.Bash;
 import io.leavesfly.jimi.tool.file.*;
 import io.leavesfly.jimi.tool.think.Think;
+import io.leavesfly.jimi.tool.todo.SetTodoList;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
@@ -171,12 +172,45 @@ public class ToolRegistry {
         ObjectNode parameters = objectMapper.createObjectNode();
         parameters.put("type", "object");
         
-        // TODO: 使用反射或注解从参数类生成详细的 schema
-        // 这里简化处理，只添加基本结构
+// 使用反射从参数类生成详细的 schema
         ObjectNode properties = objectMapper.createObjectNode();
-        parameters.set("properties", properties);
-        
         ArrayNode required = objectMapper.createArrayNode();
+
+        Class<?> paramsType = tool.getParamsType();
+        if (paramsType != null) {
+            for (java.lang.reflect.Field field : paramsType.getDeclaredFields()) {
+                String propName = field.getName();
+                com.fasterxml.jackson.annotation.JsonProperty jp = field.getAnnotation(com.fasterxml.jackson.annotation.JsonProperty.class);
+                if (jp != null && !jp.value().isEmpty()) {
+                    propName = jp.value();
+                }
+
+                ObjectNode propSchema = objectMapper.createObjectNode();
+                Class<?> t = field.getType();
+                if (t == String.class) {
+                    propSchema.put("type", "string");
+                } else if (t == Integer.class || t == int.class) {
+                    propSchema.put("type", "integer");
+                } else if (t == Long.class || t == long.class) {
+                    propSchema.put("type", "integer");
+                } else if (t == Boolean.class || t == boolean.class) {
+                    propSchema.put("type", "boolean");
+                } else if (java.util.List.class.isAssignableFrom(t)) {
+                    propSchema.put("type", "array");
+                    ObjectNode items = objectMapper.createObjectNode();
+                    items.put("type", "string");
+                    propSchema.set("items", items);
+                } else {
+                    // 默认按字符串处理
+                    propSchema.put("type", "string");
+                }
+
+                properties.set(propName, propSchema);
+                required.add(propName);
+            }
+        }
+
+        parameters.set("properties", properties);
         parameters.set("required", required);
         
         function.set("parameters", parameters);
@@ -208,6 +242,9 @@ public class ToolRegistry {
         
         // 注册 Think 工具
         registry.register(new Think());
+        
+        // 注册 Todo 工具
+        registry.register(new SetTodoList());
         
         // TODO: 注册其他工具
         // registry.register(new Task(...));

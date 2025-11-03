@@ -36,7 +36,7 @@ class PatchFileDemo {
     @BeforeEach
     void setUp() {
         BuiltinSystemPromptArgs builtinArgs = BuiltinSystemPromptArgs.builder()
-                .kimiWorkDir(tempDir.toString())
+                .kimiWorkDir(tempDir)
                 .build();
         
         Approval approval = new Approval(true);  // YOLO 模式

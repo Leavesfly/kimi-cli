@@ -5,6 +5,12 @@ import io.leavesfly.jimi.config.JimiConfig;
 import io.leavesfly.jimi.config.LLMModelConfig;
 import io.leavesfly.jimi.config.LLMProviderConfig;
 import io.leavesfly.jimi.llm.provider.KimiChatProvider;
+import io.leavesfly.jimi.llm.provider.OpenAICompatibleChatProvider;
+import io.leavesfly.jimi.soul.message.Message;
+import io.leavesfly.jimi.llm.ChatCompletionResult;
+import io.leavesfly.jimi.llm.ChatCompletionChunk;
+import reactor.core.publisher.Mono;
+import reactor.core.publisher.Flux;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -71,17 +77,15 @@ public class LLMFactory {
         String modelName,
         LLMProviderConfig providerConfig
     ) {
-        return switch (providerConfig.getType()) {
-            case KIMI -> new KimiChatProvider(modelName, providerConfig, objectMapper);
-            case OPENAI_LEGACY -> {
-                // TODO: 实现 OpenAILegacyChatProvider
-                throw new UnsupportedOperationException("OpenAI Legacy provider not yet implemented");
-            }
-            case CHAOS -> {
-                // TODO: 实现 ChaosChatProvider（用于测试）
-                throw new UnsupportedOperationException("Chaos provider not yet implemented");
-            }
-            default -> throw new IllegalArgumentException("Unknown provider type: " + providerConfig.getType());
-        };
+        switch (providerConfig.getType()) {
+            case KIMI:
+                return new KimiChatProvider(modelName, providerConfig, objectMapper);
+            case OPENAI_LEGACY:
+                return new OpenAICompatibleChatProvider(modelName, providerConfig, objectMapper, "OpenAI Legacy");
+            case CHAOS:
+                return new OpenAICompatibleChatProvider(modelName, providerConfig, objectMapper, "Chaos");
+            default:
+                throw new IllegalArgumentException("Unknown provider type: " + providerConfig.getType());
+        }
     }
 }
