@@ -2,6 +2,7 @@ package io.leavesfly.jimi.soul.message;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import io.leavesfly.jimi.llm.message.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

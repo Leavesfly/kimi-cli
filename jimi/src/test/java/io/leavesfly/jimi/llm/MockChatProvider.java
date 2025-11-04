@@ -1,6 +1,8 @@
 package io.leavesfly.jimi.llm;
 
-import io.leavesfly.jimi.soul.message.*;
+import io.leavesfly.jimi.llm.message.FunctionCall;
+import io.leavesfly.jimi.llm.message.Message;
+import io.leavesfly.jimi.llm.message.ToolCall;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 

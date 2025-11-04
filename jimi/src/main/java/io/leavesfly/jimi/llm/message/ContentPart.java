@@ -1,4 +1,4 @@
-package io.leavesfly.jimi.soul.message;
+package io.leavesfly.jimi.llm.message;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;

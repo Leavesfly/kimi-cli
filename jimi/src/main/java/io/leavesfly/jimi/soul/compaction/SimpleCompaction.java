@@ -1,7 +1,10 @@
 package io.leavesfly.jimi.soul.compaction;
 
-import io.leavesfly.jimi.llm.ChatCompletionResult;
 import io.leavesfly.jimi.llm.LLM;
+import io.leavesfly.jimi.llm.message.ContentPart;
+import io.leavesfly.jimi.llm.message.Message;
+import io.leavesfly.jimi.llm.message.MessageRole;
+import io.leavesfly.jimi.llm.message.TextPart;
 import io.leavesfly.jimi.soul.message.*;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;

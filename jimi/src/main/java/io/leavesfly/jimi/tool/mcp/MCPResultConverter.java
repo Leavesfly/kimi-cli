@@ -1,8 +1,8 @@
 package io.leavesfly.jimi.tool.mcp;
 
-import io.leavesfly.jimi.soul.message.ContentPart;
-import io.leavesfly.jimi.soul.message.ImagePart;
-import io.leavesfly.jimi.soul.message.TextPart;
+import io.leavesfly.jimi.llm.message.ContentPart;
+import io.leavesfly.jimi.llm.message.ImagePart;
+import io.leavesfly.jimi.llm.message.TextPart;
 import io.leavesfly.jimi.tool.ToolResult;
 import lombok.extern.slf4j.Slf4j;
 

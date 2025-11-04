@@ -2,9 +2,9 @@ package io.leavesfly.jimi.soul;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import io.leavesfly.jimi.soul.message.Message;
-import io.leavesfly.jimi.soul.message.MessageRole;
-import io.leavesfly.jimi.soul.message.TextPart;
+import io.leavesfly.jimi.llm.message.Message;
+import io.leavesfly.jimi.llm.message.MessageRole;
+import io.leavesfly.jimi.llm.message.TextPart;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 

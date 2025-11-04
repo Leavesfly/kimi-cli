@@ -1,7 +1,7 @@
 package io.leavesfly.jimi.ui.visualization;
 
-import io.leavesfly.jimi.soul.message.FunctionCall;
-import io.leavesfly.jimi.soul.message.ToolCall;
+import io.leavesfly.jimi.llm.message.FunctionCall;
+import io.leavesfly.jimi.llm.message.ToolCall;
 import io.leavesfly.jimi.tool.ToolResult;
 import org.junit.jupiter.api.Test;
 

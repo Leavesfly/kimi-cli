@@ -6,11 +6,6 @@ import io.leavesfly.jimi.config.LLMModelConfig;
 import io.leavesfly.jimi.config.LLMProviderConfig;
 import io.leavesfly.jimi.llm.provider.KimiChatProvider;
 import io.leavesfly.jimi.llm.provider.OpenAICompatibleChatProvider;
-import io.leavesfly.jimi.soul.message.Message;
-import io.leavesfly.jimi.llm.ChatCompletionResult;
-import io.leavesfly.jimi.llm.ChatCompletionChunk;
-import reactor.core.publisher.Mono;
-import reactor.core.publisher.Flux;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

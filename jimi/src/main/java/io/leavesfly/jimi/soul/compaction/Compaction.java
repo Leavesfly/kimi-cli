@@ -1,7 +1,7 @@
 package io.leavesfly.jimi.soul.compaction;
 
 import io.leavesfly.jimi.llm.LLM;
-import io.leavesfly.jimi.soul.message.Message;
+import io.leavesfly.jimi.llm.message.Message;
 import reactor.core.publisher.Mono;
 
 import java.util.List;

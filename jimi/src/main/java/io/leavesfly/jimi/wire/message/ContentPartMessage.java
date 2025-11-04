@@ -1,6 +1,6 @@
 package io.leavesfly.jimi.wire.message;
 
-import io.leavesfly.jimi.soul.message.ContentPart;
+import io.leavesfly.jimi.llm.message.ContentPart;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 

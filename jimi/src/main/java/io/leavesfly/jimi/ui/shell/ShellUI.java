@@ -1,11 +1,10 @@
 package io.leavesfly.jimi.ui.shell;
 
 import io.leavesfly.jimi.soul.JimiSoul;
-import io.leavesfly.jimi.soul.message.ContentPart;
-import io.leavesfly.jimi.soul.message.TextPart;
-import io.leavesfly.jimi.soul.message.ToolCall;
+import io.leavesfly.jimi.llm.message.ContentPart;
+import io.leavesfly.jimi.llm.message.TextPart;
+import io.leavesfly.jimi.llm.message.ToolCall;
 import io.leavesfly.jimi.tool.ToolResult;
-import io.leavesfly.jimi.command.CommandContext;
 import io.leavesfly.jimi.command.CommandRegistry;
 import io.leavesfly.jimi.ui.shell.input.AgentCommandProcessor;
 import io.leavesfly.jimi.ui.shell.input.InputProcessor;

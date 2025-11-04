@@ -2,11 +2,10 @@ package io.leavesfly.jimi.soul.compaction;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import io.leavesfly.jimi.llm.ChatCompletionResult;
 import io.leavesfly.jimi.llm.LLM;
 import io.leavesfly.jimi.llm.MockChatProvider;
-import io.leavesfly.jimi.soul.message.Message;
-import io.leavesfly.jimi.soul.message.MessageRole;
+import io.leavesfly.jimi.llm.message.Message;
+import io.leavesfly.jimi.llm.message.MessageRole;
 
 import java.util.ArrayList;
 import java.util.List;

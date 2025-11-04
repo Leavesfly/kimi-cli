@@ -1,6 +1,6 @@
 package io.leavesfly.jimi.ui.visualization;
 
-import io.leavesfly.jimi.soul.message.ToolCall;
+import io.leavesfly.jimi.llm.message.ToolCall;
 import io.leavesfly.jimi.tool.ToolResult;
 import lombok.extern.slf4j.Slf4j;
 

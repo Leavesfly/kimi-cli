@@ -1,6 +1,6 @@
 package io.leavesfly.jimi.soul;
 
-import io.leavesfly.jimi.soul.message.ContentPart;
+import io.leavesfly.jimi.llm.message.ContentPart;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
