@@ -12,7 +12,7 @@ import io.leavesfly.jimi.llm.message.ContentPart;
 import io.leavesfly.jimi.llm.message.FunctionCall;
 import io.leavesfly.jimi.llm.message.Message;
 import io.leavesfly.jimi.llm.message.ToolCall;
-import io.leavesfly.jimi.soul.message.*;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
